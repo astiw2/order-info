@@ -1,0 +1,186 @@
+openapi: 3.1.0
+info:
+  title: Order Information Processing System API
+  version: 0.0.1
+  description: |
+    API for processing batches of orders and retrieving customer item information.
+
+servers:
+  - url: http://localhost:8080
+    description: Development server
+
+paths:
+  /orders/info:
+    post:
+      summary: Process a batch of orders
+      operationId: processOrders
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+      responses:
+        "200":
+          description: Orders processed successfully with possible validation errors for few orders
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProcessOrdersResponse"
+              examples:
+                success_with_errors:
+                  summary: Mixed processed batch
+                  value:
+                    items:
+                      - customerId: "01"
+                        itemId: "20201"
+                        costEur: 2
+                      - customerId: "02"
+                        itemId: "20202"
+                        costEur: 5
+                    summaries:
+                      - customerId: "01"
+                        nbrOfPurchasedItems: 1
+                        totalAmountEur: 2
+                      - customerId: "02"
+                        nbrOfPurchasedItems: 1
+                        totalAmountEur: 5
+                    errors:
+                      - index: 2
+                        orderId: "50"
+                        error: "Missing required field: customerId"
+        '400':
+          description: Missing/invalid parameters.
+        '404':
+          description: No such order id(s).
+        '500':
+          description: Internal server error.
+        '503':
+          description: Service unavailable.
+
+components:
+  schemas:
+    Order:
+      type: object
+      required:
+        - customerId
+        - orderId
+        - timestamp
+        - items
+      properties:
+        customerId:
+          type: string
+          description: Unique identifier for the customer
+          example: "01"
+        orderId:
+          type: string
+          description: Unique identifier for the order
+          example: "50"
+        timestamp:
+          type: string
+          description: Order timestamp
+          example: "1637245070513"
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Item"
+          description: List of items in the order
+
+    Item:
+      type: object
+      required:
+        - itemId
+        - costEur
+      properties:
+        itemId:
+          type: string
+          description: Unique identifier for the item
+          example: "20201"
+        costEur:
+          type: integer
+          description: Cost of the item in whole euros (must be non-negative)
+          example: 2
+
+    CustomerItem:
+      type: object
+      required:
+        - customerId
+        - itemId
+        - costEur
+      properties:
+        customerId:
+          type: string
+          description: Customer identifier
+          example: "01"
+        itemId:
+          type: string
+          description: Item identifier
+          example: "20201"
+        costEur:
+          type: integer
+          description: Cost of the item in whole euros
+          example: 2
+
+    CustomerSummary:
+      type: object
+      required:
+        - customerId
+        - nbrOfPurchasedItems
+        - totalAmountEur
+      properties:
+        customerId:
+          type: string
+          description: Customer identifier
+          example: "01"
+        nbrOfPurchasedItems:
+          type: integer
+          description: Total number of items purchased by the customer
+          example: 2
+        totalAmountEur:
+          type: integer
+          description: Total amount spent by the customer
+          example: 12
+
+    ValidationError:
+      type: object
+      required:
+        - index
+        - orderId
+        - error
+      properties:
+        index:
+          type: integer
+          description: Index of the invalid order in the input batch
+          example: 2
+        orderId:
+          type: string
+          description: Order number for the invalid entry
+          example: "50"
+        error:
+          type: string
+          description: Description of the error
+          example: "Missing required field: customerId"
+
+    ProcessOrdersResponse:
+      type: object
+      required:
+        - items
+        - summaries
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CustomerItem"
+          description: Flat list of all customer items from valid orders
+        summaries:
+          type: array
+          items:
+            $ref: "#/components/schemas/CustomerSummary"
+          description: Per-customer purchase summaries
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValidationError"
+          description: Validation errors for invalid orders

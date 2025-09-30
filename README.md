@@ -18,13 +18,14 @@
 - Invalid orders are ignored (could alternatively reject whole batch but we choose to skip invalid and just log errors)
 - Schema validation will be considered strictly based upon the key name and associated data type
 - Pagination has not been considered while drafting this solution for the sake of simlicity
+- Currency handling is limited to whole euros for the sake of simplicity
 
 ## Components
 
 ### 1. HTTP Layer
 - Endpoints:
   - POST /orders/info - accept batch of orders in the provided format. Returns 200OK with customer items OR errors.
-  - GET /customers/{id}/items - return list of all items purchased by an individual customer.
+  - GET /customers/{customerId}/items - return list of all items purchased by an individual customer.
   - GET /customers/summary - list of summaries including all customers.
 
 ### 2. Validation & Parsing
