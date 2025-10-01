@@ -86,7 +86,7 @@ func (p *OrderProcessor) Process(orders []Order) {
 	}
 
 	for i, o := range orders {
-		if vErr := validateOrder(o); vErr != nil {
+		if vErr := ValidateOrder(o); vErr != nil {
 			vErr.Index = i
 			p.errs = append(p.errs, *vErr)
 			continue
@@ -116,7 +116,7 @@ func (p *OrderProcessor) OrderResponse() OrdersResponse {
 	}
 }
 
-func validateOrder(order Order) *ValidationError {
+func ValidateOrder(order Order) *ValidationError {
 	if strings.TrimSpace(order.CustomerID) == "" {
 		return &ValidationError{
 			OrderID: order.OrderID,
@@ -153,7 +153,7 @@ func validateOrder(order Order) *ValidationError {
 			}
 		}
 
-		if item.CostEur < 0 {
+		if item.CostEur <= 0 {
 			return &ValidationError{
 				OrderID: order.OrderID,
 				Error:   fmt.Sprintf("Item %d has negative cost. %d must be non-negative", i, item.CostEur),
