@@ -12,12 +12,10 @@
 <img src="resources/images/batch-processor.png" alt="Batch Processor" />
 
 ## Constraints / Assumptions
-- Go in memory storage of order data per runtime instance is used purely to answer fetch requests
 - No session handling or caching layer will be considered for this task
 - Timestamp is passed through as string. We will not parse it and consider further for any schema validation
-- Invalid orders are ignored (could alternatively reject whole batch but we choose to skip invalid and just log errors)
 - Schema validation will be considered strictly based upon the key name and associated data type
-- Pagination has not been considered while drafting this solution for the sake of simlicity
+- Pagination has not been considered for the sake of simlicity
 - Currency handling is limited to whole euros for the sake of simplicity
 
 ## Components
@@ -42,5 +40,49 @@
 
 ### 4. Error Handling Strategy
 - Collect per-order validation error.
+
+## Development
+
+### Running the Server
+
+To start the order processing server, use the provided Makefile:
+
+```bash
+make dev
+```
+
+This command will:
+1. Clean any previous build artifacts
+2. Build the application binary
+3. Start the server on `http://localhost:8080` provided the port is not already binded with any other application
+
+### Testing the API
+
+Once the server is running, you can test the POST endpoint using curl. 
+Install [jq](https://jqlang.org/) for formatted response.
+
+```bash
+curl -X POST http://localhost:8080/orders/info \
+  -H 'Content-Type: application/json' \
+  -d '[
+    {
+      "customerId": "C1",
+      "orderId": "O1", 
+      "timestamp": "1730419200000",
+      "items": [
+        { "itemId": "I100", "costEur": 5 },
+        { "itemId": "I101", "costEur": 3 }
+      ]
+    },
+    {
+      "customerId": "10",
+      "orderId": "O2",
+      "timestamp": "1730419205000", 
+      "items": [
+        { "itemid": "I200", "costEur": 7 }
+      ]
+    }
+  ]' | jq .
+```
 
 A detailed Order Management Subsystem following a DDD (Domain-Driven Design) approach is documented [here](./resources/docs/DDD.md). Please read it at your own leisure or ignore.
