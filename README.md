@@ -24,21 +24,23 @@
 
 ### 1. HTTP Layer
 - Endpoints:
-  - POST /orders/info - accept batch of orders in the provided format. Returns 200OK with customer items OR errors.
-  - GET /customers/{customerId}/items - return list of all items purchased by an individual customer.
-  - GET /customers/summary - list of summaries including all customers.
+  - POST /orders/info - accept batch of orders in the provided format. Returns 200OK with customer items and validation errors for erroneous orders if found.
 
 ### 2. Validation & Parsing
 - Strict JSON decoder to ensure no unexpected keys.
 
-### 3. Transformation Service(Conceptual at the time of drafting this markdown)
-- Input: []Order
-- Output:
-  - []CustomerItem
-  - []CustomerSummary aggregated per customer.
+### 3. Transformation
+- **Input**: `[]Order` - batch of customer orders
+- **Processing**: 
+  - Validates each order using `ValidateOrder` function
+  - Transforms valid orders into flattened customer items
+  - Aggregates data per customer for summary generation
+- **Output**:
+  - `[]CustomerItem` - flat list of all purchased items with customer ID
+  - `[]CustomerSummary` - aggregated per-customer data
+  - `[]ValidationError` - detailed errors for invalid orders
 
 ### 4. Error Handling Strategy
 - Collect per-order validation error.
-- If ALL orders invalid -> return 400.
 
 A detailed Order Management Subsystem following a DDD (Domain-Driven Design) approach is documented [here](./resources/docs/DDD.md). Please read it at your own leisure or ignore.
