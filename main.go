@@ -31,7 +31,28 @@ type Item struct {
 	CostEur int    `json:"costEur"`
 }
 
+type CustomerItem struct {
+	CustomerID string `json:"customerId"`
+	ItemID     string `json:"itemId"`
+	CostEur    int    `json:"costEur"`
+}
+
+type CustomerSummary struct {
+	CustomerID          string `json:"customerId"`
+	NbrOfPurchasedItems int    `json:"nbrOfPurchasedItems"`
+	TotalAmountEur      int    `json:"totalAmountEur"`
+}
+
+type ValidationError struct {
+	Index   int    `json:"index"`
+	OrderID string `json:"orderId"`
+	Error   string `json:"error"`
+}
+
 type OrdersResponse struct {
+	Items     []CustomerItem    `json:"items"`
+	Summaries []CustomerSummary `json:"summaries"`
+	Errors    []ValidationError `json:"errors,omitempty"`
 }
 
 func handlePostOrdersInfo(w http.ResponseWriter, r *http.Request) {
@@ -41,7 +62,11 @@ func handlePostOrdersInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := OrdersResponse{}
+	response := OrdersResponse{
+		Items:     []CustomerItem{},
+		Summaries: []CustomerSummary{},
+		Errors:    []ValidationError{},
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(response); err != nil {
