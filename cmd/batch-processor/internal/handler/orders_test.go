@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/astiw2/order-info/cmd/internal/handler"
+	"github.com/astiw2/order-info/cmd/batch-processor/internal/handler"
 )
 
 func TestValidateOrder(t *testing.T) {

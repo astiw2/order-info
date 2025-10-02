@@ -1,6 +1,6 @@
 # Variables
 BINARY_NAME=order-info
-MAIN_PATH=./cmd/main.go
+MAIN_PATH=./cmd/batch-processor/main.go
 BUILD_DIR=./bin
 
 .PHONY: all

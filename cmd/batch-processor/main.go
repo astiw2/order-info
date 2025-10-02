@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/astiw2/order-info/cmd/internal/handler"
+	"github.com/astiw2/order-info/cmd/batch-processor/internal/handler"
 )
 
 const (
